@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <link rel="icon" href="agri_logo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- QR Code Library -->
+    <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>QR Code Generator</h1>
+            <p>Create QR codes from URLs or files.</p>
+        </header>
+        
+        <div class="app-wrapper">
+            <!-- Left Side: Controls -->
+            <section class="controls">
+                <div class="card">
+                    <h2>1. Choose Content</h2>
+                    <div class="tab-container">
+                        <button class="tab-btn active" data-tab="url">URL</button>
+                        <button class="tab-btn" data-tab="file">File</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="url-content">
+                        <label for="url-input">Enter URL</label>
+                        <input type="text" id="url-input" placeholder="e.g., https://www.example.com">
+                    </div>
+                    
+                    <div class="tab-content" id="file-content">
+                        <label for="file-input">Upload a file (Image, PDF, etc.)</label>
+                        <input type="file" id="file-input">
+                        <small>Max file size: 5 MB</small>
+                    </div>
+                </div>
+
+                <button id="generate-btn" class="primary-btn">Generate QR Code</button>
+                <p id="error-message" class="error"></p>
+            </section>
+
+            <!-- Right Side: Output -->
+            <section class="output">
+                 <div class="card">
+                    <h2>3. Preview & Download</h2>
+                    <div id="qr-code-container">
+                        <div class="placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                            <p>Your QR Code will appear here</p>
+                        </div>
+                    </div>
+                    <button id="download-btn" class="primary-btn" style="display: none;">Download PNG</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
