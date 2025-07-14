@@ -1,177 +1,169 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM Elements
-  const tabBtns = document.querySelectorAll(".tab-btn");
-  const tabContents = document.querySelectorAll(".tab-content");
-  const urlInput = document.getElementById("url-input");
-  const fileInput = document.getElementById("file-input");
-  const logoInput = document.getElementById("logo-input");
-  const removeLogoBtn = document.getElementById("remove-logo-btn");
-  const logoFilename = document.getElementById("logo-filename");
-  const generateBtn = document.getElementById("generate-btn");
-  const downloadBtn = document.getElementById("download-btn");
-  const qrCodeContainer = document.getElementById("qr-code-container");
-  const errorMessage = document.getElementById("error-message");
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+    const generateBtn = document.getElementById("generate-btn");
+    const downloadBtn = document.getElementById("download-btn");
+    const qrCodeContainer = document.getElementById("qr-code-container");
+    const urlInput = document.getElementById("url-input");
+    const fileInput = document.getElementById("file-input");
+    const messageArea = document.getElementById("message-area");
+    const btnText = document.getElementById("btn-text");
+    const btnSpinner = document.getElementById("btn-spinner");
 
-  let currentTab = "url";
-  let logoFile = "./logo.png";
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    const placeholder = qrCodeContainer.innerHTML;
+    let qrCodeInstance = null;
+    let activeTab = "url";
 
-  // Initialize QR Code Styling instance
-  const qrCode = new QRCodeStyling({
-    width: 500,
-    height: 500,
-    type: "canvas",
-    dotsOptions: {
-      color: "#343a40",
-      type: "rounded",
-    },
-    backgroundOptions: {
-      color: "#ffffff",
-    },
-    imageOptions: {
-      crossOrigin: "anonymous",
-      margin: 5,
-      imageSize: 0.5,
-    },
-    cornersSquareOptions: {
-      type: "extra-rounded",
-      color: "#960000",
-    },
-    cornersDotOptions: {
-      type: "dot",
-      color: "#960000",
-    },
-  });
+    // --- SCRIPT ĐÃ SỬA LỖI ---
+    tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            activeTab = btn.dataset.tab;
 
-  // --- Event Listeners ---
+            // Cập nhật trạng thái active cho các nút tab
+            tabBtns.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
 
-  // Tab switching
-  tabBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      currentTab = btn.dataset.tab;
-      updateTabs();
-    });
-  });
+            // Ẩn tất cả các vùng nội dung
+            tabContents.forEach((content) => {
+                content.classList.remove("active");
+            });
 
-  // Generate button click
-  generateBtn.addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent form submission/page reload
-    handleGenerate();
-  });
+            // Hiển thị vùng nội dung tương ứng
+            const targetContent = document.getElementById(
+                `${activeTab}-content`
+            );
+            if (targetContent) {
+                targetContent.classList.add("active");
+            }
 
-  // Download button click
-  downloadBtn.addEventListener("click", () => {
-    qrCode.download({ name: "qr-code", extension: "png" });
-  });
-
-  // --- Functions ---
-
-  function updateTabs() {
-    tabBtns.forEach((btn) =>
-      btn.classList.toggle("active", btn.dataset.tab === currentTab)
-    );
-    tabContents.forEach((content) =>
-      content.classList.toggle("active", content.id === `${currentTab}-content`)
-    );
-    clearError();
-    // Reset inputs when switching tabs for a cleaner UX
-    urlInput.value = "";
-    fileInput.value = "";
-  }
-
-  async function handleGenerate() {
-    clearError();
-    setLoading(true);
-
-    try {
-      console.log("handleGenerate called.");
-
-      const data = await getData();
-      console.log("Returned data from getData():", data);
-
-      if (!data || typeof data !== "string" || !/^https?:\/\//.test(data)) {
-        showError("Failed to generate QR code: invalid or missing link.");
-        setLoading(false);
-        return;
-      }
-
-      // Use logo.png in public as default logo
-      const logoUrl = "logo.png";
-      const options = { data, image: logoUrl };
-
-      qrCode.update(options);
-      qrCodeContainer.innerHTML = "";
-      qrCode.append(qrCodeContainer);
-      downloadBtn.style.display = "block";
-    } catch (error) {
-      console.error("Error in handleGenerate():", error);
-      showError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function getData() {
-    if (currentTab === "url") {
-      const url = urlInput.value.trim();
-      if (!url) {
-        showError("Please enter a valid URL.");
-        return null;
-      }
-      return url;
-    } else if (currentTab === "file") {
-      const file = fileInput.files[0];
-      if (!file) {
-        showError("Please select a file.");
-        return null;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        showError(`File too large. Max: ${MAX_FILE_SIZE / 1024 / 1024} MB.`);
-        return null;
-      }
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch("/upload", {
-          method: "POST",
-          body: formData,
+            clearInputsAndReset();
         });
-        const result = await response.json();
-        console.log("Upload response:", result);
+    });
 
-        if (!response.ok) {
-          showError(result.error || "Failed to upload file.");
-          return null;
+    const generateQRCode = async () => {
+        setLoading(true);
+        let data = "";
+        if (activeTab === "url") {
+            data = urlInput.value.trim();
+            if (!data) {
+                showMessage("Vui lòng nhập URL hoặc văn bản.", "error");
+                return;
+            }
+        } else {
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage("Vui lòng chọn một file.", "error");
+                return;
+            }
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                const result = await response.json();
+                console.log("Upload response:", result);
+
+                if (!response.ok) {
+                    showError(result.error || "Failed to upload file.");
+                    return null;
+                }
+                data = result.link;
+                // return data;
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                showError("Error uploading file to server.");
+                return null;
+            }
         }
+        clearMessage();
 
-        return result.link;
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        showError("Error uploading file to server.");
-        return null;
-      }
+        try {
+            qrCodeInstance = new QRCodeStyling({
+                width: 500,
+                height: 500,
+                type: "canvas",
+                data: data,
+                dotsOptions: { color: "#000000", type: "rounded" },
+                backgroundOptions: { color: "#ffffff" },
+                cornersSquareOptions: {
+                    type: "extra-rounded",
+                    color: "#000000",
+                },
+                imageOptions: {
+                    crossOrigin: "anonymous",
+                    margin: 5,
+                    imageSize: 0.5,
+                },
+            });
+
+            const logoUrl = "logo.png";
+            const options = { data, image: logoUrl };
+
+            qrCodeInstance.update(options);
+
+            qrCodeContainer.innerHTML = "";
+            qrCodeContainer.classList.add("has-code");
+            qrCodeInstance.append(qrCodeContainer);
+            downloadBtn.style.display = "flex";
+        } catch (err) {
+            console.error(err);
+            showMessage(
+                "Không thể tạo mã QR. Dữ liệu có thể quá lớn.",
+                "error"
+            );
+            resetOutput();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    generateBtn.addEventListener("click", generateQRCode);
+
+    downloadBtn.addEventListener("click", () => {
+        if (qrCodeInstance) {
+            qrCodeInstance.download({ name: "qr-code", extension: "png" });
+        }
+    });
+
+    function setLoading(isLoading) {
+        const icon = generateBtn.querySelector("svg");
+        generateBtn.disabled = isLoading;
+
+        if (isLoading) {
+            generateBtn.classList.add("is-loading");
+            if (icon) icon.style.display = "none";
+            btnSpinner.style.display = "block";
+            btnText.textContent = "Đang tạo mã...";
+        } else {
+            generateBtn.classList.remove("is-loading");
+            if (icon) icon.style.display = "block";
+            btnSpinner.style.display = "none";
+            btnText.textContent = "Tạo mã QR";
+        }
     }
-  }
 
-  function setLoading(isLoading) {
-    generateBtn.disabled = isLoading;
-    generateBtn.textContent = isLoading ? "Generating..." : "Generate QR Code";
-    if (isLoading) {
-      downloadBtn.style.display = "none";
+    function showMessage(msg, type = "error") {
+        messageArea.textContent = msg;
+        messageArea.className = `message ${type}`;
+        messageArea.style.display = "block";
     }
-  }
 
-  function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = "block";
-  }
+    function clearMessage() {
+        messageArea.style.display = "none";
+    }
 
-  function clearError() {
-    errorMessage.textContent = "";
-    errorMessage.style.display = "none";
-  }
+    function resetOutput() {
+        qrCodeContainer.innerHTML = placeholder;
+        qrCodeContainer.classList.remove("has-code");
+        downloadBtn.style.display = "none";
+    }
 
-  // Initial setup
-  updateTabs();
+    function clearInputsAndReset() {
+        urlInput.value = "";
+        fileInput.value = "";
+        resetOutput();
+        clearMessage();
+    }
 });

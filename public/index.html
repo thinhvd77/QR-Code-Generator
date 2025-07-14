@@ -1,65 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>Trình tạo mã QR - Giao diện Agribank (Cao cấp)</title>
     <link rel="icon" href="agri_logo.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Pinyon+Script&family=Be+Vietnam+Pro&display=swap" rel="stylesheet">
     <!-- QR Code Library -->
     <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 </head>
 <body>
     <main class="container">
         <header>
-            <h1>QR Code Generator</h1>
-            <p>Create QR codes from URLs or files.</p>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--agri-red);">
+                    <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                    <line x1="14" y1="14" x2="14" y2="14.01"></line><line x1="17.5" y1="14" x2="17.5" y2="14.01"></line><line x1="14" y1="17.5" x2="14" y2="17.5"></line>
+                    <line x1="21" y1="17.5" x2="21" y2="17.5"></line><line x1="17.5" y1="17.5" x2="17.5" y2="21"></line><line x1="21" y1="21" x2="17.5" y2="21"></line>
+                </svg>
+                <span>QRIBANK</span>
+            </h1>
+            <p>Công cụ tạo mã QR miễn phí, chuyên nghiệp và an toàn.</p>
         </header>
         
         <div class="app-wrapper">
             <!-- Left Side: Controls -->
-            <section class="controls">
-                <div class="card">
-                    <h2>1. Choose Content</h2>
-                    <div class="tab-container">
-                        <button class="tab-btn active" data-tab="url">URL</button>
-                        <button class="tab-btn" data-tab="file">File</button>
-                    </div>
-                    
-                    <div class="tab-content active" id="url-content">
-                        <label for="url-input">Enter URL</label>
-                        <input type="text" id="url-input" placeholder="e.g., https://www.example.com">
-                    </div>
-                    
-                    <div class="tab-content" id="file-content">
-                        <label for="file-input">Upload a file (Image, PDF, etc.)</label>
-                        <input type="file" id="file-input">
-                        <small>Max file size: 5 MB</small>
-                    </div>
+            <section class="controls card">
+                <h2>1. Chọn nội dung</h2>
+                <div class="tab-container">
+                    <button class="tab-btn active" data-tab="url">URL / Văn bản</button>
+                    <button class="tab-btn" data-tab="file">File</button>
                 </div>
-
-                <button id="generate-btn" class="primary-btn">Generate QR Code</button>
-                <p id="error-message" class="error"></p>
+                
+                <div class="tab-content active" id="url-content">
+                    <label for="url-input">Nhập URL hoặc văn bản</label>
+                    <input type="text" id="url-input" placeholder="https://www.agribank.com.vn">
+                </div>
+                
+                <div class="tab-content" id="file-content">
+                    <label for="file-input">Tải lên file (images, PDF, Documents,...)</label>
+                    <input type="file" id="file-input">
+                    <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">Tối đa 5MB cho file.</small>
+                </div>
+                <button id="generate-btn" class="primary-btn" style="margin-top: 1.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                    <span id="btn-text">Tạo mã QR</span>
+                    <div id="btn-spinner" class="spinner" style="display: none;"></div>
+                </button>
+                <p id="message-area" class="message"></p>
             </section>
-
+            
             <!-- Right Side: Output -->
-            <section class="output">
-                 <div class="card">
-                    <h2>3. Preview & Download</h2>
-                    <div id="qr-code-container">
-                        <div class="placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                            <p>Your QR Code will appear here</p>
-                        </div>
+            <section class="output card">
+                <h2>2. Xem trước & Tải xuống</h2>
+                <div id="qr-code-container">
+                    <div class="placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <p>Mã QR của bạn sẽ hiện ở đây</p>
                     </div>
-                    <button id="download-btn" class="primary-btn" style="display: none;">Download PNG</button>
                 </div>
+                <button id="download-btn" class="primary-btn" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Tải xuống PNG</span>
+                </button>
             </section>
         </div>
     </main>
-    <script src="script.js"></script>
 </body>
+<script src="script.js"></script>
 </html>
