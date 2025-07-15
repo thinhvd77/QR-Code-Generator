@@ -27,11 +27,36 @@ html {
 
 body {
     background-color: var(--body-background);
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e9ecef' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    /* background-image: url("bg.gif"); */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e9ecef' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); */
     color: var(--text-primary);
     line-height: 1.6;
     padding: 2rem;
     min-height: 100vh;
+}
+
+#background-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 50%;
+    min-height: 50%;
+    width: auto;
+    height: auto;
+    z-index: -1; /* Đưa video ra lớp sau cùng */
+    transform: translateX(-50%) translateY(-50%);
+    object-fit: cover; /* Đảm bảo video lấp đầy màn hình mà không bị méo */
+}
+
+/* Lớp phủ nội dung, nằm trên video */
+.content-overlay {
+    position: relative;
+    z-index: 1;
+    /* padding: 2rem; */
+    min-height: 90vh;
 }
 
 .container {
@@ -47,9 +72,9 @@ header {
 header h1 {
     font-family: "Bungee Shade", sans-serif;
     font-weight: 600;
-    font-style: normal;
-    font-size: clamp(2.2rem, 5vw, 2.8rem);
-    color: var(--agri-red);
+    font-style: oblique;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,11 +82,11 @@ header h1 {
 }
 
 header p {
-    font-family: "Pinyon Script", cursive;
-    font-weight: 600;
+    font-family: "Josefin Sans", sans-serif;
+    font-weight: 900;
     font-style: normal;
-    font-size: 1.5rem;
-    color: var(--text-secondary);
+    font-size: 1.8rem;
+    color: rgb(0, 60, 101);
     margin-top: 0.5rem;
 }
 
@@ -117,7 +142,9 @@ label {
 }
 
 input[type="text"],
-input[type="file"] {
+input[type="password"],
+input[type="file"],
+select {
     width: 100%;
     padding: 0.85rem 1rem;
     background-color: var(--input-background);
@@ -126,17 +153,30 @@ input[type="file"] {
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: all 0.2s ease-in-out;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 input::placeholder {
     color: #a0a0a0;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
     outline: none;
     border-color: var(--agri-red);
     box-shadow: 0 0 0 3px rgba(150, 0, 0, 0.15);
     background-color: #fff;
+}
+
+/* Thêm CSS cho nhóm form để tạo khoảng cách */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+.form-group:last-child {
+    margin-bottom: 0;
 }
 
 .tab-container {
@@ -324,4 +364,46 @@ input[type="text"]:focus {
 }
 .tab-content.active {
     display: block;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Căn chỉnh lại input để không bị icon đè lên */
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    padding-right: 3rem;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.toggle-password:focus {
+    outline: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-secondary);
+    transition: stroke 0.2s ease-in-out;
+}
+
+.toggle-password:hover svg {
+    stroke: var(--text-primary);
 }
